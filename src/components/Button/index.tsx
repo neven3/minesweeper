@@ -29,6 +29,18 @@ function renderCellContent(state: number, value: number): React.ReactNode {
                 return (<span>1</span>);
             case CellValue.two:
                 return (<span>2</span>);
+            case CellValue.three:
+                return (<span>3</span>);
+            case CellValue.four:
+                return (<span>4</span>);
+            case CellValue.five:
+                return (<span>5</span>);
+            case CellValue.six:
+                return (<span>6</span>);
+            case CellValue.seven:
+                return (<span>7</span>);
+            case CellValue.eight:
+                return (<span>8</span>);
             case CellValue.bomb:
                 return (<span role="img" aria-label="bomb">💣</span>);
             default:
