@@ -1,0 +1,19 @@
+@mixin borders($left-top: white, $right-bottom: #1b1b1b) {
+    border: 4px solid;
+    border-top-color: $left-top;
+    border-right-color: $right-bottom;
+    border-bottom-color: $right-bottom;
+    border-left-color: $left-top;
+}
+
+@mixin flex-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin buttons {
+    &:active {
+        @include borders(#1b1b1b, white);
+    }
+}

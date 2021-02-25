@@ -1,0 +1,14 @@
+@import "../../styles/index.scss";
+
+.Button {
+    @include buttons;
+    @include borders;
+    @include flex-centered;
+    width: 30px;
+    height: 30px;
+
+    &.visible {
+        border-color: #1b1b1b;
+        border-width: 1px;
+    }
+}
