@@ -13,6 +13,8 @@
 }
 
 @mixin buttons {
+    @include borders;
+    
     &:active {
         @include borders(#1b1b1b, white);
     }

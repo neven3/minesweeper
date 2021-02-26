@@ -61,7 +61,6 @@ const calculateNumOfBombsAround: CalculateBombs = (cells, rowIndex, colIndex, bo
 
     const currentField = cells[rowIndex][colIndex];
     const isCurrentBomb = currentField.value === CellValue.bomb;
-    debugger
 
     if (isCurrentBomb) {
         calculateNumOfBombsAround(cells, rowIndex, colIndex + 1);
@@ -89,38 +88,6 @@ const calculateNumOfBombsAround: CalculateBombs = (cells, rowIndex, colIndex, bo
 
         calculateNumOfBombsAround(cells, rowIndex, colIndex + 1, bombsInCurrentCol, bombsInNextCol);
     }
-    // } else if (isLastCol) {
-    //     calculateNumOfBombsAround(cells, rowIndex + 1, 0, 0, 0);
-    // } else if (colIndex === 0) {
-    //     const currentFieldIsBomb = currentField.value === CellValue.bomb;
-
-    //     const bombsInCurrentRow
-    // }
-    // check self, above, below, upperRight, lowerRight, right
-    // if self is bomb
-    // mark cell as bomb
-    // if right is bomb
-    // mark isNextBomb = true
-    // add all of them together and mark the cell accordingly
-    // move on to next with bombsAroundPrevious set to the number of bombs
-    //  else if last in a row
-    // if isCurrentBomb
-    // mark cell as bomb
-    // else
-    // give cell number bombsAroundPrevious
-    // move on with cells, (rowIndex + 1), colIndex set to 0, bombsAroundPrevious set to 0, isNextBomb
-    // else
-    // check upperRight, right, lowerRight
-    // if right is bomb
-    // mark isNextBomb = true
-    // add them all together
-    // mark them as bombsFromCurrentCol
-    // add that plus bombsAroundPrevious
-    // if isCurrentBomb
-    // mark cell as bomb
-    // else
-    // mark cell as bombsAroundPrevious + ,
-    // move on with cells, rowIndex, colIndex + 1, bombs
 }
 
 function returnNumberOfBombsInArray(...cells: ((Cell | undefined)[])): number {

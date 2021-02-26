@@ -1,4 +1,3 @@
-import { spawn } from 'child_process';
 import React from 'react';
 import { CellState, CellValue } from '../../types';
 import './Button.scss';
@@ -13,7 +12,7 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({ row, col, state, value }) => {
     return (
         <div
-            className={`Button${state === CellState.visible ? ' visible' : ''}`}
+            className={`Button${state === CellState.visible ? ' visible' : ''} value-${value}`}
         >
             {renderCellContent(state, value)}
         </div>

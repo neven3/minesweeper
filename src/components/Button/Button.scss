@@ -2,7 +2,6 @@
 
 .Button {
     @include buttons;
-    @include borders;
     @include flex-centered;
     width: 30px;
     height: 30px;
@@ -10,5 +9,37 @@
     &.visible {
         border-color: #1b1b1b;
         border-width: 1px;
+    }
+
+    &.value-1 {
+        color: rgb(131, 190, 209);
+    }
+
+    &.value-2 {
+        color: lightgreen;
+    }
+
+    &.value-3 {
+        color: lightcoral;
+    }
+
+    &.value-4 {
+        color: rgb(214, 57, 214);
+    }
+
+    &.value-5 {
+        color: rgb(199, 70, 70);
+    }
+
+    &.value-6 {
+        color: turquoise;
+    }
+
+    &.value-7 {
+        color: black;
+    }
+
+    &.value-8 {
+        color: rgb(100, 97, 97);
     }
 }
