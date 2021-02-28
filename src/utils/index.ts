@@ -13,7 +13,7 @@ export const generateCells = () => {
         for (let col = 0; col < MAX_COLS; col++) {
             cells[row].push({
                 value: CellValue.none,
-                state: CellState.visible
+                state: CellState.open
             });
         }
     }

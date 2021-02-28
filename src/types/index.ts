@@ -17,6 +17,13 @@ export enum CellState {
     visible
 }
 
+export enum Face {
+    smile = '🙂',
+    onClick = '😨',
+    lost = '💀',
+    won = '🥳'
+}
+
 export interface Cell {
     value: CellValue;
     state: CellState;

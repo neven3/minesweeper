@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
 import { CellState, CellValue } from '../../types';
 import './Button.scss';
 
@@ -7,12 +7,16 @@ interface ButtonProps {
     col: number;
     state: CellState;
     value: CellValue;
+    onClick(event?: MouseEvent): void;
+    handleRightClick(event?: MouseEvent): void;
 }
 
-const Button: React.FC<ButtonProps> = ({ row, col, state, value }) => {
+const Button: React.FC<ButtonProps> = ({ row, col, state, value, onClick, handleRightClick }) => {
     return (
         <div
             className={`Button${state === CellState.visible ? ' visible' : ''} value-${value}`}
+            onClick={onClick}
+            onContextMenu={handleRightClick}
         >
             {renderCellContent(state, value)}
         </div>
