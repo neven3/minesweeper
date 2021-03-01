@@ -76,7 +76,7 @@ function renderCells(
                 <Button
                     key={`${rowIndex}-${colIndex}`}
                     explosion={cell.explosion}
-                    onClick={handleFieldClick(rowIndex, colIndex, newCells, setCells, isGameActive, setIsGameActive, face, setFace, setHasWon)}
+                    onClick={handleFieldClick(rowIndex, colIndex, newCells, setCells, isGameActive, setIsGameActive, face, setFace, setHasWon, numOfFlags, setNumOfFlags)}
                     handleRightClick={handleFieldRightClick(cell, newCells, setCells, numOfFlags, setNumOfFlags, face)}
                     state={cell.state}
                     value={cell.value}
@@ -97,7 +97,9 @@ function handleFieldClick(
     setIsGameActive: Dispatch<boolean>,
     face: Face,
     setFace: Dispatch<Face>,
-    setHasWon: Dispatch<boolean>
+    setHasWon: Dispatch<boolean>,
+    numOfFlags: number,
+    setNumOfFlags: Dispatch<number>
 ): (event?: MouseEvent) => void {
     return function (event?: MouseEvent): void {
         const cell = cells[rowIndex][colIndex];
@@ -144,7 +146,11 @@ function handleFieldClick(
                 }
 
                 if (!safeOpenCellsExit) {
-                    cellsWithMinesLeft.forEach(cell => cell.state = CellState.flagged);
+                    cellsWithMinesLeft.forEach(cell => {
+                        cell.state = CellState.flagged;
+                    });
+
+                    setNumOfFlags(numOfFlags - cellsWithMinesLeft.length);
                     setHasWon(true);
                 }
 
@@ -180,16 +186,17 @@ function handleFieldRightClick(
 ): (e?: MouseEvent) => void {
     return function (e?: MouseEvent): void {
         e?.preventDefault();
+        const newCells = cells.slice();
 
         if (numOfFlags > 0 && face === Face.smile) {
             if (cell.state === CellState.open) {
                 cell.state = CellState.flagged;
                 setNumOfFlags(numOfFlags - 1);
-                setCells(cells);
+                setCells(newCells);
             } else if (cell.state === CellState.flagged) {
                 cell.state = CellState.open;
                 setNumOfFlags(numOfFlags + 1);
-                setCells(cells);
+                setCells(newCells);
             }
         }
     };
