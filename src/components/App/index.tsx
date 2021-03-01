@@ -1,7 +1,7 @@
 import React, { useState, Dispatch, MouseEvent, useEffect } from 'react';
 import './App.scss';
 import NumberDisplay from '../NumberDisplay';
-import { generateCells } from '../../utils';
+import { generateCells, revealZeroMinesArea } from '../../utils';
 import Button from '../Button';
 import { Cell, CellState, CellValue, Face } from '../../types';
 import { NO_OF_BOMBS } from '../../constants';
@@ -63,7 +63,7 @@ function renderCells(
             return (
                 <Button
                     key={`${rowIndex}-${colIndex}`}
-                    onClick={handleFieldClick(cell, cells, setCells, isGameActive, setIsGameActive, face, setFace)}
+                    onClick={handleFieldClick(rowIndex, colIndex, cells, setCells, isGameActive, setIsGameActive, face, setFace)}
                     handleRightClick={handleFieldRightClick(cell, cells, setCells, numOfFlags, setNumOfFlags, face)}
                     state={cell.state}
                     value={cell.value}
@@ -76,7 +76,8 @@ function renderCells(
 }
 
 function handleFieldClick(
-    cell: Cell,
+    rowIndex: number,
+    colIndex: number,
     cells: Cell[][],
     setCells: Dispatch<Cell[][]>,
     isGameActive: boolean,
@@ -85,23 +86,26 @@ function handleFieldClick(
     setFace: Dispatch<Face>
 ): (event?: MouseEvent) => void {
     return function (event?: MouseEvent): void {
-        console.log(event?.target)
+        const cell = cells[rowIndex][colIndex];
+
+        console.log({ rowIndex, colIndex });
+
         if (!isGameActive && face === Face.smile) {
             setIsGameActive(true);
         } else if (face === Face.smile) {
-            const newCells = cells.slice();
-
-            console.log(newCells.some(row => row.includes(cell)));
-
             if (cell.state === CellState.open) {
-                cell.state = CellState.visible;
+                if (cell.value === CellValue.none) {
+                    revealZeroMinesArea(cells, rowIndex, colIndex, false);
+                } else {
+                    cell.state = CellState.visible;
+                }
+
                 setCells(cells);
             }
 
             if (cell.value === CellValue.bomb) {
                 setIsGameActive(false);
                 setFace(Face.lost);
-
             }
         }
     };

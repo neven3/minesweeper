@@ -4,9 +4,6 @@ import { CellValue, CellState, Cell, CalculateBombs } from '../types';
 export const generateCells = () => {
     const cells: Cell[][] = [];
 
-    // // number of bombs around one field that will affect the adjacent field
-    // let bombsAffectingNext: number = 0;
-
     // generating all cells
     for (let row = 0; row < MAX_ROWS; row++) {
         cells.push([]);
@@ -18,7 +15,7 @@ export const generateCells = () => {
         }
     }
 
-    //randomly put 10 bombs
+    //randomly place 10 bombs
     for (let i = 0; i < NO_OF_BOMBS; i++) {
         placeBombs(cells, MAX_ROWS, MAX_COLS);
     }
@@ -117,4 +114,119 @@ function getBombsInNextCol(cells: Cell[][], rowIndex: number, colIndex: number):
         cells?.[rowIndex]?.[colIndex + 1],
         cells?.[rowIndex + 1]?.[colIndex + 1]
     );
+}
+
+export function revealZeroMinesArea(
+    cells: Cell[][],
+    rowIndex: number,
+    colIndex: number,
+    isPreviousNearBombs: boolean,
+): void {
+    const cell = cells?.[rowIndex]?.[colIndex];
+
+    if (!cell) {
+        return;
+    }
+
+    const { value, state } = cell;
+
+    if (state === CellState.visible || state === CellState.flagged) {
+        return;
+    }
+
+    let isCurrentNearBombs = false;
+    let shouldRevealSurrounding = false;
+
+    if (isPreviousNearBombs) {
+        if (value !== CellValue.none) {
+            return;
+        } else {
+            shouldRevealSurrounding = true;
+        }
+    }
+
+    if (value !== CellValue.none) {
+        isCurrentNearBombs = true;
+    }
+
+    cell.state = CellState.visible;
+    // call function with the field above the current field
+    revealZeroMinesArea(cells, rowIndex - 1, colIndex, isCurrentNearBombs);
+    // then call the function with the field just right to the current field
+    revealZeroMinesArea(cells, rowIndex, colIndex + 1, isCurrentNearBombs);
+    // then call the function with the field to the left of the current field
+    revealZeroMinesArea(cells, rowIndex, colIndex - 1, isCurrentNearBombs);
+    // then call the function with the field just below the current field
+    revealZeroMinesArea(cells, rowIndex + 1, colIndex, isCurrentNearBombs);
+
+    if (shouldRevealSurrounding) {
+        // TODO: refactor with getBombsInPrevCol (change those functions as well, they should return arrays, and you should perform functions on those arrays)
+        [
+            cells?.[rowIndex - 1]?.[colIndex - 1],
+            cells?.[rowIndex - 1]?.[colIndex],
+            cells?.[rowIndex - 1]?.[colIndex + 1],
+            cells?.[rowIndex]?.[colIndex - 1],
+            cells?.[rowIndex]?.[colIndex],
+            cells?.[rowIndex]?.[colIndex + 1],
+            cells?.[rowIndex + 1]?.[colIndex - 1],
+            cells?.[rowIndex + 1]?.[colIndex],
+            cells?.[rowIndex + 1]?.[colIndex + 1],
+        ].forEach((cell) => {
+            if (cell) {
+                cell.state = CellState.visible;
+            }
+        });
+    }
+
+    if (value === CellValue.none) {
+        const cornerCoordinates = getCornerCoordinates(cells, rowIndex, colIndex);
+
+        if (cornerCoordinates) {
+            cornerCoordinates.forEach(([corRow, corCol]) => cells[corRow][corCol].state = CellState.visible);
+        }
+    }
+}
+
+function getCornerCoordinates(cells: Cell[][], rowIndex: number, colIndex: number): ([number, number][] | null) {
+    const upperIndex = rowIndex - 1;
+    const lowerIndex = rowIndex + 1;
+    const leftIndex = colIndex - 1;
+    const rightIndex = colIndex + 1;
+
+    const upperCell = cells?.[upperIndex]?.[colIndex];
+    const lowerCell = cells?.[lowerIndex]?.[colIndex];
+    const leftCell = cells?.[rowIndex]?.[leftIndex];
+    const rightCell = cells?.[rowIndex]?.[rightIndex];
+
+    const checkIfNumber = (cell: Cell): boolean => (
+        cell?.state !== CellState.open
+        && cell?.value !== CellValue.none
+        && cell?.value !== CellValue.bomb
+    );
+
+    const items: [number, number][] = [];
+
+    if (upperCell && rightCell && checkIfCellsMatchValue([upperCell, rightCell], checkIfNumber)) {
+        items.push([upperIndex, rightIndex]);
+    }
+
+    if (upperCell && leftCell && checkIfCellsMatchValue([upperCell, leftCell], checkIfNumber)) {
+        items.push([upperIndex, leftIndex]);
+    }
+
+    if (lowerCell && rightCell && checkIfCellsMatchValue([lowerCell, rightCell], checkIfNumber)) {
+        items.push([lowerIndex, rightIndex]);
+    }
+
+    if (lowerCell && leftCell && checkIfCellsMatchValue([lowerCell, leftCell], checkIfNumber)) {
+        items.push([lowerIndex, leftIndex]);
+    }
+
+    return items.length ? items : null;
+}
+
+function checkIfCellsMatchValue(cells: [Cell, Cell], cb: Function) {
+    return cells.reduce((accBool, currCell) => {
+        return accBool && cb(currCell);
+    }, true);
 }
