@@ -7,14 +7,15 @@ interface ButtonProps {
     col: number;
     state: CellState;
     value: CellValue;
+    explosion?: boolean;
     onClick(event?: MouseEvent): void;
     handleRightClick(event?: MouseEvent): void;
 }
 
-const Button: React.FC<ButtonProps> = ({ row, col, state, value, onClick, handleRightClick }) => {
+const Button: React.FC<ButtonProps> = ({ row, col, state, value, explosion, onClick, handleRightClick }) => {
     return (
         <div
-            className={`Button${state === CellState.visible ? ' visible' : ''} value-${value}`}
+            className={`Button${state === CellState.visible ? " visible" : ""}${explosion ? " activated-mine" : ""} value-${value}`}
             onClick={onClick}
             onContextMenu={handleRightClick}
         >

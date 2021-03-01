@@ -1,8 +1,11 @@
 import { MAX_ROWS, MAX_COLS, NO_OF_BOMBS } from '../constants';
 import { CellValue, CellState, Cell, CalculateBombs } from '../types';
 
+export let cellsWithMines: (Cell[]) = [];
+
 export const generateCells = () => {
     const cells: Cell[][] = [];
+    cellsWithMines = [];
 
     // generating all cells
     for (let row = 0; row < MAX_ROWS; row++) {
@@ -35,6 +38,7 @@ function placeBombs(cells: Cell[][], maxRows: number, maxCols: number): void {
 
     if (!cellHasBomb) {
         cells[randomRow][randomCol].value = CellValue.bomb;
+        cellsWithMines.push(cells[randomRow][randomCol]);
     } else {
         placeBombs(cells, maxRows, maxCols);
     }
@@ -67,15 +71,15 @@ const calculateNumOfBombsAround: CalculateBombs = (cells, rowIndex, colIndex, bo
         let bombsInNextCol: number;
 
         if (bombsFromPreviousCol == null || bombsFromCurrentCol == null) {
-            bombsInPreviousCol = getBombsInPrevCol(cells, rowIndex, colIndex);
-            bombsInCurrentCol = getBombsInCurrentCol(cells, rowIndex, colIndex);
+            bombsInPreviousCol = returnNumberOfBombsInArray(getFieldsInPrevCol(cells, rowIndex, colIndex));
+            bombsInCurrentCol = returnNumberOfBombsInArray(getFieldsInCurrentCol(cells, rowIndex, colIndex));
         } else {
             bombsInPreviousCol = bombsFromPreviousCol;
             bombsInCurrentCol = bombsFromCurrentCol;
         }
 
         if (colIndex !== cells[rowIndex].length - 1) {
-            bombsInNextCol = getBombsInNextCol(cells, rowIndex, colIndex)
+            bombsInNextCol = returnNumberOfBombsInArray(getFieldsInNextCol(cells, rowIndex, colIndex));
         } else {
             bombsInNextCol = 0;
         }
@@ -87,33 +91,33 @@ const calculateNumOfBombsAround: CalculateBombs = (cells, rowIndex, colIndex, bo
     }
 }
 
-function returnNumberOfBombsInArray(...cells: ((Cell | undefined)[])): number {
+function returnNumberOfBombsInArray(cells: ((Cell | undefined)[])): number {
     return cells.reduce((accNum: number, currCell): number => {
-        return accNum + Number(currCell != null ? (currCell.value === CellValue.bomb) : 0);
+        return accNum + Number(currCell ? (currCell.value === CellValue.bomb) : 0);
     }, 0);
 }
 
-function getBombsInPrevCol(cells: Cell[][], rowIndex: number, colIndex: number): number {
-    return returnNumberOfBombsInArray(
+function getFieldsInPrevCol(cells: Cell[][], rowIndex: number, colIndex: number): Cell[] {
+    return ([
         cells?.[rowIndex - 1]?.[colIndex - 1],
         cells?.[rowIndex]?.[colIndex - 1],
         cells?.[rowIndex + 1]?.[colIndex - 1]
-    );
+    ]);
 }
 
-function getBombsInCurrentCol(cells: Cell[][], rowIndex: number, colIndex: number): number {
-    return returnNumberOfBombsInArray(
+function getFieldsInCurrentCol(cells: Cell[][], rowIndex: number, colIndex: number): Cell[] {
+    return ([
         cells?.[rowIndex - 1]?.[colIndex],
         cells?.[rowIndex + 1]?.[colIndex]
-    );
+    ]);
 }
 
-function getBombsInNextCol(cells: Cell[][], rowIndex: number, colIndex: number): number {
-    return returnNumberOfBombsInArray(
+function getFieldsInNextCol(cells: Cell[][], rowIndex: number, colIndex: number): Cell[] {
+    return ([
         cells?.[rowIndex - 1]?.[colIndex + 1],
         cells?.[rowIndex]?.[colIndex + 1],
         cells?.[rowIndex + 1]?.[colIndex + 1]
-    );
+    ]);
 }
 
 export function revealZeroMinesArea(
@@ -160,17 +164,10 @@ export function revealZeroMinesArea(
     revealZeroMinesArea(cells, rowIndex + 1, colIndex, isCurrentNearBombs);
 
     if (shouldRevealSurrounding) {
-        // TODO: refactor with getBombsInPrevCol (change those functions as well, they should return arrays, and you should perform functions on those arrays)
         [
-            cells?.[rowIndex - 1]?.[colIndex - 1],
-            cells?.[rowIndex - 1]?.[colIndex],
-            cells?.[rowIndex - 1]?.[colIndex + 1],
-            cells?.[rowIndex]?.[colIndex - 1],
-            cells?.[rowIndex]?.[colIndex],
-            cells?.[rowIndex]?.[colIndex + 1],
-            cells?.[rowIndex + 1]?.[colIndex - 1],
-            cells?.[rowIndex + 1]?.[colIndex],
-            cells?.[rowIndex + 1]?.[colIndex + 1],
+            ...getFieldsInPrevCol(cells, rowIndex, colIndex),
+            ...getFieldsInCurrentCol(cells, rowIndex, colIndex),
+            ...getFieldsInNextCol(cells, rowIndex, colIndex)
         ].forEach((cell) => {
             if (cell) {
                 cell.state = CellState.visible;

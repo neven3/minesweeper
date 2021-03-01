@@ -1,17 +1,20 @@
 import React, { useState, Dispatch, MouseEvent, useEffect } from 'react';
 import './App.scss';
 import NumberDisplay from '../NumberDisplay';
-import { generateCells, revealZeroMinesArea } from '../../utils';
+import { generateCells, revealZeroMinesArea, cellsWithMines } from '../../utils';
 import Button from '../Button';
 import { Cell, CellState, CellValue, Face } from '../../types';
-import { NO_OF_BOMBS } from '../../constants';
+import { MAX_COLS, MAX_ROWS, NO_OF_BOMBS } from '../../constants';
+
+const newCells = generateCells();
 
 const App: React.FC = () => {
-    const [cells, setCells] = useState<Cell[][]>(generateCells());
+    const [cells, setCells] = useState<Cell[][]>(newCells);
     const [face, setFace] = useState<Face>(Face.smile);
     const [time, setTime] = useState<number>(0);
     const [isGameActive, setIsGameActive] = useState<boolean>(false);
     const [numOfFlags, setNumOfFlags] = useState<number>(NO_OF_BOMBS);
+    const [hasWon, setHasWon] = useState<boolean>(false);
 
     useEffect(() => {
         if (isGameActive && time < 999) {
@@ -21,7 +24,14 @@ const App: React.FC = () => {
 
             return (() => clearInterval(timer));
         }
-    }, [isGameActive, time])
+    }, [isGameActive, time]);
+
+    useEffect(() => {
+        if (hasWon) {
+            setIsGameActive(false);
+            setFace(Face.won);
+        }
+    }, [hasWon]);
 
     return (
         <div className="App">
@@ -29,19 +39,18 @@ const App: React.FC = () => {
                 <NumberDisplay value={numOfFlags} />
                 <div
                     className="Face"
-                    onClick={() => handleFaceClick(setFace, setTime, setIsGameActive, setCells, setNumOfFlags)}
+                    onClick={() => handleFaceClick(setFace, setTime, setIsGameActive, setCells, setNumOfFlags, setHasWon)}
                 >
                     {face}
                 </div>
                 <NumberDisplay value={time} />
-                <NumberDisplay value={0} />
             </div>
             <div
                 className="Body"
                 onMouseDown={() => face === Face.smile && setFace(Face.onClick)}
                 onMouseUp={() => face === Face.onClick && setFace(Face.smile)}
             >
-                {renderCells(cells, setCells, isGameActive, setIsGameActive, numOfFlags, setNumOfFlags, face, setFace)}
+                {renderCells(cells, setCells, isGameActive, setIsGameActive, numOfFlags, setNumOfFlags, face, setFace, setHasWon)}
             </div>
         </div>
     );
@@ -57,15 +66,18 @@ function renderCells(
     numOfFlags: number,
     setNumOfFlags: Dispatch<number>,
     face: Face,
-    setFace: Dispatch<Face>
+    setFace: Dispatch<Face>,
+    setHasWon: Dispatch<boolean>
 ): React.ReactNode {
-    return cells.map((row, rowIndex) => {
+    const newCells = cells.slice();
+    return newCells.map((row, rowIndex) => {
         return row.map((cell, colIndex) => {
             return (
                 <Button
                     key={`${rowIndex}-${colIndex}`}
-                    onClick={handleFieldClick(rowIndex, colIndex, cells, setCells, isGameActive, setIsGameActive, face, setFace)}
-                    handleRightClick={handleFieldRightClick(cell, cells, setCells, numOfFlags, setNumOfFlags, face)}
+                    explosion={cell.explosion}
+                    onClick={handleFieldClick(rowIndex, colIndex, newCells, setCells, isGameActive, setIsGameActive, face, setFace, setHasWon)}
+                    handleRightClick={handleFieldRightClick(cell, newCells, setCells, numOfFlags, setNumOfFlags, face)}
                     state={cell.state}
                     value={cell.value}
                     row={rowIndex}
@@ -84,7 +96,8 @@ function handleFieldClick(
     isGameActive: boolean,
     setIsGameActive: Dispatch<boolean>,
     face: Face,
-    setFace: Dispatch<Face>
+    setFace: Dispatch<Face>,
+    setHasWon: Dispatch<boolean>
 ): (event?: MouseEvent) => void {
     return function (event?: MouseEvent): void {
         const cell = cells[rowIndex][colIndex];
@@ -100,14 +113,42 @@ function handleFieldClick(
                     revealZeroMinesArea(cells, rowIndex, colIndex, false);
                 } else {
                     cell.state = CellState.visible;
+
+                    if (cell.value === CellValue.bomb) {
+                        cell.explosion = true;
+                        setIsGameActive(false);
+                        setFace(Face.lost);
+                        cellsWithMines.forEach(cell => cell.state = CellState.visible)
+                        setCells(newCells);
+                        return;
+                    }
+                }
+
+                let safeOpenCellsExit = false;
+
+                const cellsWithMinesLeft: Cell[] = [];
+
+                for (let row = 0; row < MAX_ROWS; row++) {
+                    for (let col = 0; col < MAX_COLS; col++) {
+                        const currentCell = newCells[row][col];
+
+                        if (currentCell.state === CellState.open) {
+                            if (currentCell.value === CellValue.bomb) {
+                                cellsWithMinesLeft.push(currentCell);
+                            } else {
+                                safeOpenCellsExit = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!safeOpenCellsExit) {
+                    cellsWithMinesLeft.forEach(cell => cell.state = CellState.flagged);
+                    setHasWon(true);
                 }
 
                 setCells(newCells);
-            }
-
-            if (cell.value === CellValue.bomb) {
-                setIsGameActive(false);
-                setFace(Face.lost);
             }
         }
     };
@@ -118,9 +159,11 @@ function handleFaceClick(
     setTime: Dispatch<number>,
     setIsGameActive: Dispatch<boolean>,
     setCells: Dispatch<Cell[][]>,
-    setNumOfFlags: Dispatch<number>
+    setNumOfFlags: Dispatch<number>,
+    setHasWon: Dispatch<boolean>
 ): void {
     setFace(Face.smile);
+    setHasWon(false);
     setTime(0);
     setIsGameActive(false);
     setCells(generateCells());
@@ -149,5 +192,5 @@ function handleFieldRightClick(
                 setCells(cells);
             }
         }
-    }
+    };
 }

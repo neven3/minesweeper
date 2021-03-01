@@ -27,6 +27,7 @@ export enum Face {
 export interface Cell {
     value: CellValue;
     state: CellState;
+    explosion?: boolean;
 }
 
 export type CalculateBombs = (
