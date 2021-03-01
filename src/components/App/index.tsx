@@ -34,6 +34,7 @@ const App: React.FC = () => {
                     {face}
                 </div>
                 <NumberDisplay value={time} />
+                <NumberDisplay value={0} />
             </div>
             <div
                 className="Body"
@@ -87,12 +88,13 @@ function handleFieldClick(
 ): (event?: MouseEvent) => void {
     return function (event?: MouseEvent): void {
         const cell = cells[rowIndex][colIndex];
-
-        console.log({ rowIndex, colIndex });
+        const newCells = cells.slice();
 
         if (!isGameActive && face === Face.smile) {
             setIsGameActive(true);
-        } else if (face === Face.smile) {
+        }
+
+        if (face === Face.smile) {
             if (cell.state === CellState.open) {
                 if (cell.value === CellValue.none) {
                     revealZeroMinesArea(cells, rowIndex, colIndex, false);
@@ -100,7 +102,7 @@ function handleFieldClick(
                     cell.state = CellState.visible;
                 }
 
-                setCells(cells);
+                setCells(newCells);
             }
 
             if (cell.value === CellValue.bomb) {

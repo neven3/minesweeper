@@ -6,12 +6,12 @@ I used the tutorial in the link to get better acquainted with the syntax and how
 
 I'm especially proud of the **calculateNumOfBombsAround** function in the *utils* folder. I know I could've used ordinary, plain-old loops to get the job done (and most likely in a more performant fashion), but I really wanted to geek out doing it. I love the concept of recursion, which I rarely get to use at work, so I wanted to practice it bit and that's the only reason why I wanted to iterate over the minefield by way of recursive function calls, rather than a loop. But, to make up for it, I did make some optimizations along the way.
 
-###The quick and easy part of the algorithm goes something like this:
+### The quick and easy part of the algorithm goes something like this:
 1. If the index of the row you're in is equal to the number of rows in the minefield, you've reached the end, congrats
 2. If the index of the column you're in is equal to the number of fields in the row you're in, then move on to the next row
 3. If the field you're currently on is a bomb, move on to the next field
 
-###The part where I optimized it a bit:
+### The part where I optimized it a bit:
 1. I knew that the first field in the "minefield" (or the first field in any row) doesn't have any elements to its left and I only need to figure out if the five fields surrounding it have mines in them. (ok, for the first field in the first row we only have to check 3 fields)
     - So I saved the number of bombs in the two fields (top and bottom) in the first column and the number of bombs in the three fields in the adjacent column (top, same-level, bottom), and passed them as arguments to the next calculateNumOfBombsAround function call
         - This will matter in a second, I promise :slightly_smiling_face:
