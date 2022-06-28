@@ -2,7 +2,7 @@ This project was made out of love for (and many hours ~~wasted~~ invested into p
 
 I was learning TypeScript and wanted to practice it by building something. I found a really nice tutorial here: https://www.youtube.com/playlist?list=PLXzMwWvud3xQHiuDrx9b3UzPxzZUbyEWi and decided to follow it since it covered some of the things that I wanted to learn (better): TypeScript, React Hooks, SASS.
 
-I used the tutorial in the link to get better acquainted with the syntax and how it's used. Most (if not all) of the methods were written by your's truly.
+I used the tutorial in the link to get better acquainted with the syntax and how it's used. Most (if not all) of the methods were written by yours truly.
 
 I'm especially proud of the **calculateNumOfBombsAround** function in the *utils* folder. I know I could've used ordinary, plain-old loops to get the job done (and most likely in a more performant fashion), but I really wanted to geek out doing it. I love the concept of recursion, which I rarely get to use at work, so I wanted to practice it bit and that's the only reason why I wanted to iterate over the minefield by way of recursive function calls, rather than a loop. But, to make up for it, I did make some optimizations along the way.
 
